@@ -4,25 +4,192 @@
 {% block title %}Kirish{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2>Saytga kirish</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
+<style>
+  [data-theme="dark"] {
+    --auth-card-bg:     rgba(15,24,41,0.8);
+    --auth-card-border: rgba(255,255,255,0.07);
+    --auth-title:       #F0F4FF;
+    --auth-link:        #3B82F6;
+    --auth-hr:          rgba(255,255,255,0.07);
+    --auth-sub:         #64748B;
+  }
+  [data-theme="light"] {
+    --auth-card-bg:     rgba(255,255,255,0.95);
+    --auth-card-border: rgba(0,0,0,0.08);
+    --auth-title:       #0F172A;
+    --auth-link:        #2563EB;
+    --auth-hr:          rgba(0,0,0,0.07);
+    --auth-sub:         #94A3B8;
+  }
 
-            <div class="d-flex align-items-center mt-3">
-                <button type="submit" class="btn btn-primary">Kirish</button>
-                <a href="{% url 'password_reset' %}" class="ms-auto text-decoration-none">
-                    Parolni unutdingizmi?
-                </a>
-            </div>
-        </form>
+  .auth-wrap {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
 
-        <hr class="mt-4">
-        <p class="text-center">
-            Hali ro'yxatdan o'tmaganmisiz? <a href="{% url 'signup' %}">Ro'yxatdan o'tish</a>
-        </p>
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--auth-card-bg);
+    border: 1px solid var(--auth-card-border);
+    border-radius: 20px;
+    padding: 40px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .auth-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(37,99,235,0.12);
+    border: 1px solid rgba(37,99,235,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .auth-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--auth-title);
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+  }
+
+  .auth-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--auth-sub);
+    margin-bottom: 28px;
+    transition: color 0.3s;
+  }
+
+  /* Crispy form override */
+  .auth-card label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--auth-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .auth-card input[type="text"],
+  .auth-card input[type="email"],
+  .auth-card input[type="password"] {
+    width: 100%;
+    background: var(--sc-textarea-bg, rgba(6,12,26,0.6));
+    border: 1px solid var(--sc-textarea-border, rgba(255,255,255,0.08));
+    border-radius: 10px;
+    color: var(--sc-textarea-text, #C9D1D9);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s, background 0.3s, color 0.3s;
+    margin-bottom: 4px;
+  }
+
+  .auth-card input:focus {
+    border-color: rgba(37,99,235,0.5);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  }
+
+  .auth-card .helptext,
+  .auth-card small {
+    font-size: 11px;
+    color: var(--auth-sub);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .auth-card .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 8px;
+  }
+  .auth-card .errorlist li {
+    font-size: 11px;
+    color: #EF4444;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .btn-auth {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+    margin-top: 8px;
+  }
+  .btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(37,99,235,0.4);
+  }
+
+  .auth-divider {
+    border: none;
+    border-top: 1px solid var(--auth-hr);
+    margin: 24px 0;
+    transition: border-color 0.3s;
+  }
+
+  .auth-bottom {
+    text-align: center;
+    font-size: 13px;
+    color: var(--auth-sub);
+    transition: color 0.3s;
+  }
+  .auth-bottom a {
+    color: var(--auth-link);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .auth-bottom a:hover { text-decoration: underline; }
+
+  .forgot-link {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: var(--auth-link);
+    font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .forgot-link:hover { text-decoration: underline; }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-icon">🔐</div>
+    <div class="auth-title">Tizimga kirish</div>
+    <div class="auth-subtitle">// login --secure</div>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <a href="{% url 'password_reset' %}" class="forgot-link">Parolni unutdingizmi?</a>
+      <button type="submit" class="btn-auth">[ KIRISH → ]</button>
+    </form>
+
+    <hr class="auth-divider">
+    <div class="auth-bottom">
+      Hali ro'yxatdan o'tmaganmisiz?
+      <a href="{% url 'signup' %}">Ro'yxatdan o'tish →</a>
     </div>
+  </div>
 </div>
 {% endblock %}
