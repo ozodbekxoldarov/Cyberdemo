@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Postlar{% endblock %}
+
+{% block content %}
+<style>
+  [data-theme="dark"] {
+    --al-card-bg:     rgba(15,24,41,0.7);
+    --al-card-border: rgba(255,255,255,0.07);
+    --al-card-hover:  rgba(255,255,255,0.04);
+    --al-title:       #F0F4FF;
+    --al-title-hover: #60A5FA;
+    --al-body:        #94A3B8;
+    --al-footer:      #475569;
+    --al-link:        #3B82F6;
+  }
+
+  [data-theme="light"] {
+    --al-card-bg:     rgba(255,255,255,0.95);
+    --al-card-border: rgba(0,0,0,0.08);
+    --al-card-hover:  rgba(0,0,0,0.02);
+    --al-title:       #0F172A;
+    --al-title-hover: #2563EB;
+    --al-body:        #475569;
+    --al-footer:      #94A3B8;
+    --al-link:        #2563EB;
+  }
+
+  .blog-page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .blog-header {
+    margin-bottom: 36px;
+  }
+
+  .blog-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3B82F6;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .blog-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--mp-title, var(--al-title));
+    letter-spacing: -0.02em;
+    margin: 0;
+    transition: color 0.3s;
+  }
+
+  .article-card {
+    background: var(--al-card-bg);
+    border: 1px solid var(--al-card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+  }
+
+  .article-card:hover {
+    background: var(--al-card-hover);
+    border-color: rgba(59,130,246,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+
+  .article-card img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .article-body {
+    padding: 24px 28px;
+  }
+
+  .article-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--al-title);
+    text-decoration: none;
+    line-height: 1.3;
+    display: block;
+    margin-bottom: 12px;
+    transition: color 0.2s;
+  }
+  .article-card-title:hover {
+    color: var(--al-title-hover);
+    text-decoration: none;
+  }
+
+  .article-summary {
+    font-size: 0.92rem;
+    color: var(--al-body);
+    line-height: 1.7;
+    margin-bottom: 0;
+    transition: color 0.3s;
+  }
+
+  .article-summary a {
+    color: var(--al-link);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .article-summary a:hover { text-decoration: underline; }
+
+  .article-footer {
+    padding: 14px 28px;
+    border-top: 1px solid var(--al-card-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--al-footer);
+    transition: color 0.3s, border-color 0.3s;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--al-footer);
+    font-size: 14px;
+  }
+</style>
+
+<div class="blog-page">
+  <div class="blog-header">
+    <div class="blog-label">// blog.posts</div>
+    <h1 class="blog-title">Barcha postlar</h1>
+  </div>
+
+  {% for article in object_list %}
+  <div class="article-card">
+    {% if article.photo %}
+      <img src="{{ article.photo.url }}" alt="{{ article.title }}">
+    {% endif %}
+    <div class="article-body">
+      <a href="{% url 'article_detail' article.pk %}" class="article-card-title">
+        {{ article.title }}
+      </a>
+      <p class="article-summary">
+        {{ article.summary }}...
+        <a href="{% url 'article_detail' article.pk %}">batafsil →</a>
+      </p>
+    </div>
+    <div class="article-footer">
+      muallif: {{ article.author|title }} &middot; {{ article.date }}
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">
+    // hozircha postlar yo'q — [ no posts found ]
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

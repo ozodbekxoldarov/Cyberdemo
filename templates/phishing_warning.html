@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ogohlantirish!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { width: 480px; border-radius: 12px; padding: 48px 40px; text-align: center; border: 2px solid #EA4335; }
+    .icon { font-size: 72px; margin-bottom: 24px; }
+    h1 { font-size: 28px; color: #EA4335; margin-bottom: 16px; }
+    .subtitle { font-size: 16px; color: #202124; margin-bottom: 24px; line-height: 1.6; }
+    .stat-box {
+      background: #fce8e6; border-radius: 8px;
+      padding: 16px; margin-bottom: 24px;
+      font-size: 18px; color: #c5221f; font-weight: bold;
+    }
+    .info-box {
+      background: #fce8e6; border-radius: 8px;
+      padding: 20px; margin-bottom: 24px; text-align: left;
+    }
+    .info-box h3 { color: #c5221f; font-size: 15px; margin-bottom: 12px; }
+    .info-box ul { list-style: none; padding: 0; }
+    .info-box ul li { font-size: 13px; color: #5f6368; padding: 4px 0; }
+    .info-box ul li::before { content: "⚠️ "; }
+    .safe-box {
+      background: #e6f4ea; border-radius: 8px;
+      padding: 20px; margin-bottom: 24px; text-align: left;
+    }
+    .safe-box h3 { color: #137333; font-size: 15px; margin-bottom: 12px; }
+    .safe-box ul { list-style: none; padding: 0; }
+    .safe-box ul li { font-size: 13px; color: #5f6368; padding: 4px 0; }
+    .safe-box ul li::before { content: "✅ "; }
+    .btn { background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 6px; font-size: 15px; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn:hover { background: #1557b0; }
+    .footer { margin-top: 24px; font-size: 12px; color: #9aa0a6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎣</div>
+    <h1>Bu PHISHING edi!</h1>
+    <p class="subtitle">
+      Siz hozirgina <strong>fake Google login sahifasiga</strong> parolingizni kiritdingiz.
+      Haqiqiy hujumda ma'lumotlaringiz o'g'irlangan bo'lardi!
+    </p>
+
+    <div class="stat-box">
+      👥 Bugungi kungacha {{ jami }} ta foydalanuvchi aldandi!
+    </div>
+
+    <div class="info-box">
+      <h3>Nima xavfli edi?</h3>
+      <ul>
+        <li>Sahifa Google ga o'xshardi — lekin haqiqiy emas</li>
+        <li>URL manzil google.com emas edi</li>
+        <li>Parolingiz hujumchiga ketishi mumkin edi</li>
+        <li>Emailingiz bazaga saqlanishi mumkin edi</li>
+      </ul>
+    </div>
+
+    <div class="safe-box">
+      <h3>Qanday himoyalanish kerak?</h3>
+      <ul>
+        <li>Har doim URL manzilni tekshiring</li>
+        <li>HTTPS va qulf belgisini kuzating</li>
+        <li>2 bosqichli autentifikatsiya yoqing</li>
+        <li>Har bir sayt uchun alohida parol ishlating</li>
+      </ul>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:16px;">
+      <a href="/" class="btn" style="background:#34A853;">🏠 Bosh sahifa</a>
+      <a href="/attack-map/" class="btn" style="background:#EA4335;">🗺️ Xaritani ko'rish</a>
+      <a href="/phishing-demo/" class="btn" style="background:#1a73e8;">🔄 Demo qayta</a>
+    </div>
+    <p class="footer">
+      Bu demo faqat ta'lim maqsadida yaratilgan — Kiberxavfsizlik asoslari kursi
+    </p>
+  </div>
+</body>
+</html>

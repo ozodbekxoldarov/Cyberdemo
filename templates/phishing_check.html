@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Scanner{% endblock %}
+
+{% block content %}
+<style>
+  [data-theme="dark"] {
+    --sc-card-bg:       rgba(15,24,41,0.8);
+    --sc-card-border:   rgba(255,255,255,0.07);
+    --sc-header-border: rgba(255,255,255,0.05);
+    --sc-title:         #F0F4FF;
+    --sc-subtitle:      #475569;
+    --sc-label:         #64748B;
+    --sc-textarea-bg:   rgba(6,12,26,0.8);
+    --sc-textarea-border: rgba(255,255,255,0.08);
+    --sc-textarea-text: #C9D1D9;
+    --sc-placeholder:   #334155;
+    --sc-footer-border: rgba(255,255,255,0.05);
+    --sc-footer-text:   #334155;
+    --sc-footer-span:   #475569;
+    --sc-progress-bg:   rgba(255,255,255,0.05);
+    --sc-result-desc:   #64748B;
+  }
+
+  [data-theme="light"] {
+    --sc-card-bg:       rgba(255,255,255,0.95);
+    --sc-card-border:   rgba(0,0,0,0.08);
+    --sc-header-border: rgba(0,0,0,0.06);
+    --sc-title:         #0F172A;
+    --sc-subtitle:      #94A3B8;
+    --sc-label:         #64748B;
+    --sc-textarea-bg:   #F8FAFC;
+    --sc-textarea-border: rgba(0,0,0,0.12);
+    --sc-textarea-text: #1E293B;
+    --sc-placeholder:   #CBD5E1;
+    --sc-footer-border: rgba(0,0,0,0.06);
+    --sc-footer-text:   #94A3B8;
+    --sc-footer-span:   #64748B;
+    --sc-progress-bg:   rgba(0,0,0,0.06);
+    --sc-result-desc:   #64748B;
+  }
+
+  .scanner-wrap {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .scanner-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 40%, rgba(16,185,129,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 70% 60%, rgba(37,99,235,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .scanner-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+    background: var(--sc-card-bg);
+    border: 1px solid var(--sc-card-border);
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    transition: background 0.3s, border-color 0.3s;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+
+  .scanner-header {
+    padding: 28px 36px 24px;
+    border-bottom: 1px solid var(--sc-header-border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.3s;
+  }
+
+  .scanner-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .scanner-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sc-title);
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s;
+  }
+
+  .scanner-subtitle {
+    font-size: 12px;
+    color: var(--sc-subtitle);
+    margin: 2px 0 0;
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s;
+  }
+
+  .scanner-body { padding: 28px 36px; }
+
+  .input-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sc-label);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 10px;
+    display: block;
+    transition: color 0.3s;
+  }
+
+  .scanner-textarea {
+    width: 100%;
+    background: var(--sc-textarea-bg);
+    border: 1px solid var(--sc-textarea-border);
+    border-radius: 12px;
+    color: var(--sc-textarea-text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 16px 18px;
+    resize: vertical;
+    min-height: 150px;
+    transition: border-color 0.2s, background 0.3s, color 0.3s;
+    outline: none;
+  }
+  .scanner-textarea:focus {
+    border-color: rgba(16,185,129,0.4);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.08);
+  }
+  .scanner-textarea::placeholder { color: var(--sc-placeholder); }
+
+  .btn-scan {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(5,150,105,0.3);
+  }
+  .btn-scan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(5,150,105,0.4);
+  }
+
+  .result-box {
+    margin-top: 24px;
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .result-phishing {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+  .result-normal {
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+
+  .result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .result-verdict {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .result-percent {
+    font-size: 3.8rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .result-phishing .result-label   { color: #EF4444; }
+  .result-phishing .result-verdict { color: #EF4444; }
+  .result-phishing .result-percent { color: #EF4444; }
+  .result-normal .result-label     { color: #10B981; }
+  .result-normal .result-verdict   { color: #10B981; }
+  .result-normal .result-percent   { color: #10B981; }
+
+  .result-desc {
+    font-size: 13px;
+    color: var(--sc-result-desc);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s;
+  }
+
+  .progress-wrap {
+    margin: 16px 0 0;
+    background: var(--sc-progress-bg);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.8s ease;
+  }
+  .result-phishing .progress-fill { background: linear-gradient(90deg, #EF4444, #DC2626); }
+  .result-normal   .progress-fill { background: linear-gradient(90deg, #10B981, #059669); }
+
+  .scanner-footer {
+    padding: 16px 36px;
+    border-top: 1px solid var(--sc-footer-border);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    transition: border-color 0.3s;
+  }
+
+  .footer-stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--sc-footer-text);
+    transition: color 0.3s;
+  }
+  .footer-stat span {
+    color: var(--sc-footer-span);
+    transition: color 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(10px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+</style>
+
+<div class="scanner-wrap">
+  <div class="scanner-card">
+
+    <div class="scanner-header">
+      <div class="scanner-icon">🤖</div>
+      <div>
+        <div class="scanner-title">ai_phishing_scanner.exe</div>
+        <div class="scanner-subtitle">SVM + TF-IDF · Accuracy: 97.9%</div>
+      </div>
+    </div>
+
+    <div class="scanner-body">
+      <form method="POST">
+        {% csrf_token %}
+        <label class="input-label">// email_text input</label>
+        <textarea
+          name="email_text"
+          class="scanner-textarea"
+          placeholder="Email matnini shu yerga kiriting...&#10;&#10;Misol: Dear user, your account has been suspended. Click here to verify your identity immediately!"
+          required
+        >{% if request.POST.email_text %}{{ request.POST.email_text }}{% endif %}</textarea>
+        <button type="submit" class="btn-scan">[ SCAN_EXECUTE → ]</button>
+      </form>
+
+      {% if natija %}
+      <div class="result-box result-{{ natija.rang }}">
+        {% if natija.xavf == 'PHISHING' %}
+          <div class="result-label">// threat detected</div>
+          <div class="result-verdict">🚨 PHISHING EMAIL</div>
+          <div class="result-percent">{{ natija.foiz }}%</div>
+          <div class="progress-wrap">
+            <div class="progress-fill" style="width:{{ natija.foiz }}%;"></div>
+          </div>
+          <div class="result-desc" style="margin-top:12px;">[WARNING] Bu email xavfli — hujumchi sizni aldamoqchi!</div>
+        {% else %}
+          <div class="result-label">// no threat found</div>
+          <div class="result-verdict">✅ CLEAN EMAIL</div>
+          <div class="result-percent">{{ natija.foiz }}%</div>
+          <div class="progress-wrap">
+            <div class="progress-fill" style="width:{{ natija.foiz }}%;"></div>
+          </div>
+          <div class="result-desc" style="margin-top:12px;">[OK] Bu email xavfsiz ko'rinadi.</div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="scanner-footer">
+      <span class="footer-stat">model: <span>SVM · LinearSVC</span></span>
+      <span class="footer-stat">dataset: <span>18,101 emails</span></span>
+      <span class="footer-stat">F1: <span>97.3%</span> · AUC: <span>0.997</span></span>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

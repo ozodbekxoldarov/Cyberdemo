@@ -1,0 +1,709 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CyberSec Lab — Phishing Detection{% endblock %}
+
+{% block content %}
+<style>
+  /* ── HOME PAGE THEME VARS ── */
+  [data-theme="dark"] {
+    --hero-bg-from:   #060C1A;
+    --hero-bg-to:     #0B1629;
+    --hero-grid:      rgba(37,99,235,0.06);
+    --hero-title:     #F0F4FF;
+    --hero-desc:      #94A3B8;
+    --btn-ghost-bg:   rgba(255,255,255,0.04);
+    --btn-ghost-text: #CBD5E1;
+    --btn-ghost-border: rgba(255,255,255,0.1);
+    --btn-ghost-hover-bg: rgba(255,255,255,0.08);
+    --btn-ghost-hover-text: #F0F4FF;
+    --stats-border:   rgba(255,255,255,0.06);
+    --stat-default:   #F0F4FF;
+    --stat-label:     #475569;
+    --section-title:  #F0F4FF;
+    --section-divider: rgba(255,255,255,0.05);
+    --tool-card-bg:   rgba(255,255,255,0.025);
+    --tool-card-border: rgba(255,255,255,0.07);
+    --tool-arrow:     #334155;
+    --tool-arrow-hover: #94A3B8;
+    --tool-desc:      #64748B;
+    --how-bg:         rgba(255,255,255,0.015);
+    --how-border:     rgba(255,255,255,0.05);
+    --step-border:    rgba(255,255,255,0.05);
+    --step-title:     #E2E8F0;
+    --step-desc:      #475569;
+    --accuracy-bg:    linear-gradient(135deg, rgba(16,185,129,0.07), rgba(37,99,235,0.04));
+    --accuracy-border: rgba(16,185,129,0.18);
+    --accuracy-title: #F0F4FF;
+    --accuracy-desc:  #64748B;
+    --model-tag-bg:   rgba(255,255,255,0.05);
+    --model-tag-border: rgba(255,255,255,0.1);
+    --model-tag-text: #94A3B8;
+    --terminal-bg:    rgba(15,23,42,0.9);
+    --terminal-border: rgba(255,255,255,0.07);
+    --terminal-bar-bg: rgba(255,255,255,0.03);
+    --terminal-bar-border: rgba(255,255,255,0.06);
+    --terminal-bar-text: #475569;
+    --terminal-body-text: #64748B;
+    --terminal-cmd:   #E2E8F0;
+  }
+
+  [data-theme="light"] {
+    --hero-bg-from:   #EFF6FF;
+    --hero-bg-to:     #F0F9FF;
+    --hero-grid:      rgba(37,99,235,0.05);
+    --hero-title:     #0F172A;
+    --hero-desc:      #475569;
+    --btn-ghost-bg:   rgba(0,0,0,0.04);
+    --btn-ghost-text: #334155;
+    --btn-ghost-border: rgba(0,0,0,0.12);
+    --btn-ghost-hover-bg: rgba(0,0,0,0.07);
+    --btn-ghost-hover-text: #0F172A;
+    --stats-border:   rgba(0,0,0,0.08);
+    --stat-default:   #0F172A;
+    --stat-label:     #94A3B8;
+    --section-title:  #0F172A;
+    --section-divider: rgba(0,0,0,0.06);
+    --tool-card-bg:   rgba(255,255,255,0.8);
+    --tool-card-border: rgba(0,0,0,0.08);
+    --tool-arrow:     #CBD5E1;
+    --tool-arrow-hover: #64748B;
+    --tool-desc:      #64748B;
+    --how-bg:         rgba(0,0,0,0.02);
+    --how-border:     rgba(0,0,0,0.06);
+    --step-border:    rgba(0,0,0,0.06);
+    --step-title:     #1E293B;
+    --step-desc:      #64748B;
+    --accuracy-bg:    linear-gradient(135deg, rgba(16,185,129,0.06), rgba(37,99,235,0.03));
+    --accuracy-border: rgba(16,185,129,0.25);
+    --accuracy-title: #0F172A;
+    --accuracy-desc:  #64748B;
+    --model-tag-bg:   rgba(0,0,0,0.04);
+    --model-tag-border: rgba(0,0,0,0.1);
+    --model-tag-text: #64748B;
+    --terminal-bg:    #F8FAFC;
+    --terminal-border: rgba(0,0,0,0.08);
+    --terminal-bar-bg: rgba(0,0,0,0.03);
+    --terminal-bar-border: rgba(0,0,0,0.06);
+    --terminal-bar-text: #94A3B8;
+    --terminal-body-text: #94A3B8;
+    --terminal-cmd:   #334155;
+  }
+
+  .hero {
+    position: relative;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 60px 20px;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 30%, rgba(37,99,235,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, rgba(5,150,105,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 60% 10%, rgba(220,38,38,0.06) 0%, transparent 55%),
+      linear-gradient(160deg, var(--hero-bg-from) 0%, var(--hero-bg-to) 50%, var(--hero-bg-from) 100%);
+    z-index: 0;
+    transition: background 0.3s;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--hero-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hero-grid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 860px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(37,99,235,0.12);
+    border: 1px solid rgba(37,99,235,0.35);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #60A5FA;
+    letter-spacing: 0.05em;
+    margin-bottom: 32px;
+    animation: fadeSlideDown 0.6s ease forwards;
+  }
+
+  .badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #22D3EE;
+    box-shadow: 0 0 8px #22D3EE;
+    animation: pulse 2s infinite;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--hero-title);
+    margin-bottom: 24px;
+    animation: fadeSlideUp 0.7s ease 0.1s both;
+    transition: color 0.3s;
+  }
+
+  .hero-title .accent-green { color: #10B981; }
+  .hero-title .accent-red   { color: #EF4444; }
+  .hero-title .accent-blue  { color: #3B82F6; }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--hero-desc);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto 44px;
+    animation: fadeSlideUp 0.7s ease 0.2s both;
+    transition: color 0.3s;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeSlideUp 0.7s ease 0.3s both;
+  }
+
+  .btn-primary-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 4px 24px rgba(37,99,235,0.35);
+    transition: all 0.25s;
+  }
+  .btn-primary-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(37,99,235,0.5);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .btn-ghost-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--btn-ghost-bg);
+    color: var(--btn-ghost-text);
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid var(--btn-ghost-border);
+    transition: all 0.25s;
+  }
+  .btn-ghost-hero:hover {
+    background: var(--btn-ghost-hover-bg);
+    color: var(--btn-ghost-hover-text);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  .stats-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    margin-top: 64px;
+    animation: fadeSlideUp 0.7s ease 0.4s both;
+    border: 1px solid var(--stats-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .stat-item {
+    padding: 24px 40px;
+    text-align: center;
+    border-right: 1px solid var(--stats-border);
+    flex: 1;
+    transition: border-color 0.3s;
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--stat-default);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s;
+  }
+  .stat-num.green { color: #10B981; }
+  .stat-num.blue  { color: #3B82F6; }
+  .stat-num.red   { color: #EF4444; }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--stat-label);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+    transition: color 0.3s;
+  }
+
+  .cs-section { padding: 80px 20px; }
+  .cs-container { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3B82F6;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: var(--section-title);
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    transition: color 0.3s;
+  }
+
+  .section-desc {
+    color: var(--tool-desc);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 44px;
+    transition: color 0.3s;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+
+  .tool-card {
+    background: var(--tool-card-bg);
+    border: 1px solid var(--tool-card-border);
+    border-radius: 16px;
+    padding: 28px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card:hover {
+    border-color: var(--cc);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.15), 0 0 0 1px var(--cc);
+    text-decoration: none;
+  }
+
+  .tool-card.red   { --cc: rgba(239,68,68,0.5); }
+  .tool-card.green { --cc: rgba(16,185,129,0.5); }
+  .tool-card.blue  { --cc: rgba(59,130,246,0.5); }
+  .tool-card.amber { --cc: rgba(245,158,11,0.5); }
+
+  .tool-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .tool-card.red   .tool-icon { background: rgba(239,68,68,0.12); }
+  .tool-card.green .tool-icon { background: rgba(16,185,129,0.12); }
+  .tool-card.blue  .tool-icon { background: rgba(59,130,246,0.12); }
+  .tool-card.amber .tool-icon { background: rgba(245,158,11,0.12); }
+
+  .tool-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .tool-card.red   .tool-name { color: #EF4444; }
+  .tool-card.green .tool-name { color: #10B981; }
+  .tool-card.blue  .tool-name { color: #3B82F6; }
+  .tool-card.amber .tool-name { color: #F59E0B; }
+
+  .tool-desc { font-size: 0.83rem; color: var(--tool-desc); line-height: 1.6; transition: color 0.3s; }
+
+  .tool-arrow {
+    position: absolute;
+    top: 22px; right: 22px;
+    color: var(--tool-arrow);
+    font-size: 1.1rem;
+    transition: all 0.3s;
+  }
+  .tool-card:hover .tool-arrow { color: var(--tool-arrow-hover); transform: translate(3px,-3px); }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--section-divider);
+    margin: 0;
+    transition: border-color 0.3s;
+  }
+
+  .how-section {
+    background: var(--how-bg);
+    border-top: 1px solid var(--how-border);
+    border-bottom: 1px solid var(--how-border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .step-item {
+    padding: 32px 24px;
+    border-right: 1px solid var(--step-border);
+    transition: border-color 0.3s;
+  }
+  .step-item:last-child { border-right: none; }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #3B82F6;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .step-icon { font-size: 1.6rem; margin-bottom: 12px; }
+  .step-title { font-size: 0.9rem; font-weight: 600; color: var(--step-title); margin-bottom: 8px; transition: color 0.3s; }
+  .step-desc  { font-size: 0.78rem; color: var(--step-desc); line-height: 1.6; transition: color 0.3s; }
+
+  .accuracy-card {
+    background: var(--accuracy-bg);
+    border: 1px solid var(--accuracy-border);
+    border-radius: 24px;
+    padding: 52px;
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    flex-wrap: wrap;
+    transition: border-color 0.3s;
+  }
+
+  .accuracy-num {
+    font-size: 5rem;
+    font-weight: 700;
+    color: #10B981;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .accuracy-num span { font-size: 2rem; color: #059669; }
+
+  .accuracy-info { flex: 1; min-width: 240px; }
+  .accuracy-title { font-size: 1.5rem; font-weight: 700; color: var(--accuracy-title); margin-bottom: 12px; transition: color 0.3s; }
+  .accuracy-desc  { color: var(--accuracy-desc); line-height: 1.7; font-size: 0.92rem; margin-bottom: 22px; transition: color 0.3s; }
+
+  .model-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .model-tag {
+    background: var(--model-tag-bg);
+    border: 1px solid var(--model-tag-border);
+    color: var(--model-tag-text);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    transition: all 0.3s;
+  }
+
+  .terminal-widget {
+    background: var(--terminal-bg);
+    border: 1px solid var(--terminal-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .terminal-bar {
+    background: var(--terminal-bar-bg);
+    border-bottom: 1px solid var(--terminal-bar-border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background 0.3s;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-body {
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--terminal-body-text);
+    transition: color 0.3s;
+  }
+  .t-prompt { color: #3B82F6; }
+  .t-cmd    { color: var(--terminal-cmd); transition: color 0.3s; }
+  .t-out    { color: #10B981; }
+  .t-cursor { animation: blink 1s infinite; color: #3B82F6; }
+
+  .particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 8px #22D3EE; }
+    50%      { box-shadow: 0 0 18px #22D3EE; }
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; } 50% { opacity:0; }
+  }
+  @keyframes floatUp {
+    0%   { transform:translateY(100vh) scale(0); opacity:0; }
+    10%  { opacity:0.35; }
+    90%  { opacity:0.35; }
+    100% { transform:translateY(-80px) scale(1); opacity:0; }
+  }
+
+  @media (max-width: 768px) {
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .stat-item  { padding: 16px 14px; }
+    .accuracy-card { padding: 28px 20px; }
+    .accuracy-num  { font-size: 3.5rem; }
+  }
+  @media (max-width: 480px) {
+    .steps-grid { grid-template-columns: 1fr; }
+    .stats-bar  { flex-wrap: wrap; }
+  }
+</style>
+
+<!-- HERO -->
+<section class="hero" style="margin-top:-24px;">
+  <div class="particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      LIVE · Sotsial Injineriya Tadqiqot Tizimi
+    </div>
+    <h1 class="hero-title">
+      Phishing hujumlarini<br>
+      <span class="accent-green">AI</span> bilan
+      <span class="accent-red">aniqlang</span>,<br>
+      <span class="accent-blue">joylashuvni kuzating</span>
+    </h1>
+    <p class="hero-desc">
+    </p>
+    <div class="hero-ctas">
+      <a href="{% url 'phishing_demo' %}" class="btn-primary-hero">🎣 Phishing Demo</a>
+      <a href="{% url 'phishing_check' %}" class="btn-ghost-hero">🤖 AI Scanner →</a>
+      <a href="{% url 'attack_map' %}" class="btn-ghost-hero">🗺️ Attack Map →</a>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num green">97.9%</div>
+        <div class="stat-label">AI Aniqlik</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num blue">18,101</div>
+        <div class="stat-label">Email Dataset</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Kuzatilayotgan shahar</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num red">LIVE</div>
+        <div class="stat-label">Tizim holati</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- TOOLS -->
+<section class="cs-section">
+  <div class="cs-container">
+    <div class="section-label"></div>
+    <p class="section-desc"></p>
+    <div class="tools-grid">
+      <a href="{% url 'phishing_demo' %}" class="tool-card red">
+        <span class="tool-arrow">↗</span>
+        <div class="tool-icon">🎣</div>
+        <div class="tool-name">Phishing Demo</div>
+        <div class="tool-desc">Haqiqiy Google login sahifasiga o'xshash soxta forma. Foydalanuvchi ma'lumotlari bazaga saqlanadi.</div>
+      </a>
+      <a href="{% url 'phishing_check' %}" class="tool-card green">
+        <span class="tool-arrow">↗</span>
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">AI Scanner</div>
+        <div class="tool-desc">SVM + TF-IDF asosidagi detektor. Email matnini kiritish orqali 97.9% aniqlikda tahlil qiladi.</div>
+      </a>
+      <a href="{% url 'attack_map' %}" class="tool-card blue">
+        <span class="tool-arrow">↗</span>
+        <div class="tool-icon">🗺️</div>
+        <div class="tool-name">Attack Map</div>
+        <div class="tool-desc">Real-time xarita. IP geolokatsiya va timezone fingerprint orqali hujum manzilini aniqlaydi.</div>
+      </a>
+      <a href="{% url 'article_list' %}" class="tool-card amber">
+        <span class="tool-arrow">↗</span>
+        <div class="tool-icon">📝</div>
+        <div class="tool-name">Blog</div>
+        <div class="tool-desc">Kiberxavfsizlik mavzusidagi maqolalar. Sentiment AI orqali izohlar tahlili.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!--&lt;!&ndash; HOW IT WORKS &ndash;&gt;-->
+<!--<section class="cs-section how-section">-->
+<!--  <div class="cs-container">-->
+<!--    <div class="section-label">// process.sh</div>-->
+<!--    <h2 class="section-title" style="margin-bottom:36px;">Qanday ishlaydi?</h2>-->
+<!--    <div class="steps-grid">-->
+<!--      <div class="step-item">-->
+<!--        <div class="step-num">STEP_01</div>-->
+<!--        <div class="step-icon">✉️</div>-->
+<!--        <div class="step-title">Soxta Login</div>-->
+<!--        <div class="step-desc">Foydalanuvchi soxta sahifaga email va parol kiritadi</div>-->
+<!--      </div>-->
+<!--      <div class="step-item">-->
+<!--        <div class="step-num">STEP_02</div>-->
+<!--        <div class="step-icon">📡</div>-->
+<!--        <div class="step-title">Fingerprint</div>-->
+<!--        <div class="step-desc">IP, timezone, browser ma'lumotlari jimgina olinadi</div>-->
+<!--      </div>-->
+<!--      <div class="step-item">-->
+<!--        <div class="step-num">STEP_03</div>-->
+<!--        <div class="step-icon">🌍</div>-->
+<!--        <div class="step-title">Geolokatsiya</div>-->
+<!--        <div class="step-desc">Mamlakat va shahar ip-api.com orqali aniqlanadi</div>-->
+<!--      </div>-->
+<!--      <div class="step-item">-->
+<!--        <div class="step-num">STEP_04</div>-->
+<!--        <div class="step-icon">🗺️</div>-->
+<!--        <div class="step-title">Xaritada</div>-->
+<!--        <div class="step-desc">Hujum nuqtasi real-time Leaflet xaritasida ko'rinadi</div>-->
+<!--      </div>-->
+<!--      <div class="step-item">-->
+<!--        <div class="step-num">STEP_05</div>-->
+<!--        <div class="step-icon">🤖</div>-->
+<!--        <div class="step-title">AI Tahlil</div>-->
+<!--        <div class="step-desc">SVM model email matnini phishing/normal deb belgilaydi</div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+<!--<hr class="section-divider">-->
+
+<!--&lt;!&ndash; AI ACCURACY &ndash;&gt;-->
+<!--<section class="cs-section">-->
+<!--  <div class="cs-container">-->
+<!--    <div class="accuracy-card">-->
+<!--      <div class="accuracy-num">97<span>.9%</span></div>-->
+<!--      <div class="accuracy-info">-->
+<!--        <div class="accuracy-title">AI Phishing Detector</div>-->
+<!--        <div class="accuracy-desc">Google Colab da 18,101 ta email dataset bilan o'qitilgan SVM model. 5 ta algoritm taqqoslanib eng yaxshisi tanlandi. TF-IDF + Bigram xususiyat ajratish, CalibratedClassifier ehtimollar.</div>-->
+<!--        <div class="model-tags">-->
+<!--          <span class="model-tag">SVM</span>-->
+<!--          <span class="model-tag">TF-IDF</span>-->
+<!--          <span class="model-tag">Bigram</span>-->
+<!--          <span class="model-tag">scikit-learn</span>-->
+<!--          <span class="model-tag">F1: 97.3%</span>-->
+<!--          <span class="model-tag">AUC: 0.997</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+<!--<hr class="section-divider">-->
+
+<!-- TERMINAL -->
+<section class="cs-section" style="padding-bottom:100px;">
+  <div class="cs-container">
+    <div class="section-label"></div>
+    <h2 class="section-title">Tizim holati</h2>
+    <div class="terminal-widget">
+      <div class="terminal-bar">
+        <div class="t-dot" style="background:#FF5F57;"></div>
+        <div class="t-dot" style="background:#FFBD2E;"></div>
+        <div class="t-dot" style="background:#28CA41;"></div>
+        <span style="margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--terminal-bar-text);">cybersec-lab ~ dashboard</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">root@cybersec:~$</span> <span class="t-cmd">python manage.py status</span></div>
+        <div><span class="t-out">✓ Django server     ............ RUNNING</span></div>
+        <div><span class="t-out">✓ AI Model (SVM)    ............ LOADED [97.9%]</span></div>
+        <div><span class="t-out">✓ Attack Map        ............ ACTIVE [40+ cities]</span></div>
+        <div><span class="t-out">✓ IP Geolocation    ............ CONNECTED</span></div>
+        <div><span class="t-out">✓ SQLite Database   ............ OK</span></div>
+        <div style="margin-top:6px;"><span class="t-prompt">root@cybersec:~$</span> <span class="t-cursor">█</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const canvas = document.getElementById('particles');
+const colors = ['#2563EB','#10B981','#EF4444','#F59E0B'];
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  const size = Math.random() * 4 + 2;
+  p.className = 'particle';
+  p.style.cssText = `
+    left:${Math.random()*100}%;
+    width:${size}px; height:${size}px;
+    background:${colors[Math.floor(Math.random()*colors.length)]};
+    animation-duration:${Math.random()*18+12}s;
+    animation-delay:${Math.random()*10}s;
+    opacity:0.3;
+  `;
+  canvas.appendChild(p);
+}
+</script>
+{% endblock %}

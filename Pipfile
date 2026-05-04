@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pillow = "*"
+django-ckeditor = "*"
+django = "*"
+django-crispy-forms = "*"
+crispy-bootstrap4 = "*"
+scikit-learn = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.14"

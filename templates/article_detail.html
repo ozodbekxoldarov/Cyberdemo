@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<style>
+  [data-theme="dark"] {
+    --ad-card-bg:       rgba(15,24,41,0.7);
+    --ad-card-border:   rgba(255,255,255,0.07);
+    --ad-title:         #F0F4FF;
+    --ad-meta:          #475569;
+    --ad-body:          #C9D1D9;
+    --ad-link:          #3B82F6;
+    --ad-comment-bg:    rgba(255,255,255,0.02);
+    --ad-comment-border: rgba(255,255,255,0.05);
+    --ad-comment-text:  #94A3B8;
+    --ad-comment-author: #64748B;
+    --ad-input-bg:      rgba(6,12,26,0.8);
+    --ad-input-border:  rgba(255,255,255,0.08);
+    --ad-input-text:    #C9D1D9;
+    --ad-placeholder:   #334155;
+    --ad-empty:         #475569;
+    --ad-section-title: #F0F4FF;
+  }
+
+  [data-theme="light"] {
+    --ad-card-bg:       rgba(255,255,255,0.95);
+    --ad-card-border:   rgba(0,0,0,0.08);
+    --ad-title:         #0F172A;
+    --ad-meta:          #94A3B8;
+    --ad-body:          #334155;
+    --ad-link:          #2563EB;
+    --ad-comment-bg:    rgba(0,0,0,0.02);
+    --ad-comment-border: rgba(0,0,0,0.06);
+    --ad-comment-text:  #475569;
+    --ad-comment-author: #94A3B8;
+    --ad-input-bg:      #F8FAFC;
+    --ad-input-border:  rgba(0,0,0,0.12);
+    --ad-input-text:    #1E293B;
+    --ad-placeholder:   #CBD5E1;
+    --ad-empty:         #94A3B8;
+    --ad-section-title: #0F172A;
+  }
+
+  .detail-page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .detail-card {
+    background: var(--ad-card-bg);
+    border: 1px solid var(--ad-card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .detail-card img {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-body { padding: 32px; }
+
+  .detail-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ad-title);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+
+  .detail-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ad-meta);
+    margin-bottom: 28px;
+    transition: color 0.3s;
+  }
+
+  .detail-text {
+    font-size: 1rem;
+    color: var(--ad-body);
+    line-height: 1.8;
+    transition: color 0.3s;
+  }
+
+  .detail-actions {
+    padding: 16px 32px;
+    border-top: 1px solid var(--ad-card-border);
+    display: flex;
+    gap: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .detail-actions a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ad-link);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .detail-actions a:hover { opacity: 0.7; text-decoration: none; }
+  .detail-actions a.danger { color: #EF4444; }
+
+  /* Comments */
+  .comments-card {
+    background: var(--ad-card-bg);
+    border: 1px solid var(--ad-card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .card-section-title {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--ad-card-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #3B82F6;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 0.3s;
+  }
+
+  .comment-item {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--ad-comment-border);
+    background: var(--ad-comment-bg);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .comment-item:last-child { border-bottom: none; }
+
+  .comment-text {
+    font-size: 0.92rem;
+    color: var(--ad-comment-text);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+
+  .comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ad-comment-author);
+    transition: color 0.3s;
+  }
+
+  .badge-sentiment {
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-positive {
+    background: rgba(16,185,129,0.12);
+    color: #10B981;
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+  .badge-negative {
+    background: rgba(239,68,68,0.12);
+    color: #EF4444;
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+
+  .empty-comment {
+    padding: 32px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ad-empty);
+    transition: color 0.3s;
+  }
+
+  /* Comment form */
+  .form-card {
+    background: var(--ad-card-bg);
+    border: 1px solid var(--ad-card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .form-body { padding: 24px 28px; }
+
+  .form-body textarea,
+  .form-body input[type="text"] {
+    width: 100%;
+    background: var(--ad-input-bg);
+    border: 1px solid var(--ad-input-border);
+    border-radius: 10px;
+    color: var(--ad-input-text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s, background 0.3s, color 0.3s;
+    resize: vertical;
+  }
+  .form-body textarea:focus,
+  .form-body input:focus {
+    border-color: rgba(59,130,246,0.4);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    border: none;
+    padding: 11px 24px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+  }
+
+  .login-prompt {
+    font-size: 13px;
+    color: var(--ad-empty);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s;
+  }
+  .login-prompt a { color: #3B82F6; text-decoration: none; }
+  .login-prompt a:hover { text-decoration: underline; }
+</style>
+
+<div class="detail-page">
+
+  <!-- Article -->
+  <div class="detail-card">
+    {% if object.photo %}
+      <img src="{{ object.photo.url }}" alt="{{ object.title }}">
+    {% endif %}
+    <div class="detail-body">
+      <h1 class="detail-title">{{ object.title }}</h1>
+      <div class="detail-meta">
+        muallif: {{ object.author }} &middot; {{ object.date }}
+      </div>
+      <div class="detail-text">{{ object.body|safe }}</div>
+    </div>
+    <div class="detail-actions">
+      <a href="{% url 'article_edit' object.pk %}">✏️ Tahrirlash</a>
+      <a href="{% url 'article_delete' object.pk %}" class="danger">🗑️ O'chirish</a>
+      <a href="{% url 'article_list' %}">← Barcha postlar</a>
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div class="comments-card">
+    <div class="card-section-title">// izohlar ({{ object.comments.count }})</div>
+    {% for comment in object.comments.all %}
+    <div class="comment-item">
+      <div class="comment-text">{{ comment.comment }}</div>
+      <div class="comment-meta">
+        <span>{{ comment.author }}</span>
+        {% if comment.sentiment == 'Ijobiy' %}
+          <span class="badge-sentiment badge-positive">✓ Ijobiy {{ comment.sentiment_foiz }}%</span>
+        {% elif comment.sentiment == 'Salbiy' %}
+          <span class="badge-sentiment badge-negative">✗ Salbiy {{ comment.sentiment_foiz }}%</span>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-comment">// hozircha izohlar yo'q</div>
+    {% endfor %}
+  </div>
+
+  <!-- Comment form -->
+  <div class="form-card">
+    <div class="card-section-title">// izoh qoldirish</div>
+    <div class="form-body">
+      {% if user.is_authenticated %}
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn-submit">[ YUBORISH → ]</button>
+        </form>
+      {% else %}
+        <p class="login-prompt">
+          Izoh qoldirish uchun <a href="{% url 'login' %}">tizimga kiring</a>.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block title %}Attack Map{% endblock %}
+
+{% block content %}
+<style>
+  [data-theme="dark"] {
+    --mp-title:        #F0F4FF;
+    --mp-count:        #475569;
+    --mp-container-border: rgba(255,255,255,0.07);
+    --mp-topbar-bg:    rgba(15,24,41,0.95);
+    --mp-topbar-border: rgba(255,255,255,0.06);
+    --mp-topbar-text:  #475569;
+    --mp-table-bg:     rgba(15,24,41,0.6);
+    --mp-table-border: rgba(255,255,255,0.06);
+    --mp-th-bg:        rgba(255,255,255,0.03);
+    --mp-th-color:     #475569;
+    --mp-th-border:    rgba(255,255,255,0.05);
+    --mp-tr-border:    rgba(255,255,255,0.03);
+    --mp-tr-hover:     rgba(255,255,255,0.025);
+    --mp-td-color:     #94A3B8;
+    --mp-empty-color:  #334155;
+    --map-tile: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  }
+
+  [data-theme="light"] {
+    --mp-title:        #0F172A;
+    --mp-count:        #94A3B8;
+    --mp-container-border: rgba(0,0,0,0.08);
+    --mp-topbar-bg:    rgba(248,250,252,0.98);
+    --mp-topbar-border: rgba(0,0,0,0.06);
+    --mp-topbar-text:  #94A3B8;
+    --mp-table-bg:     rgba(255,255,255,0.8);
+    --mp-table-border: rgba(0,0,0,0.07);
+    --mp-th-bg:        rgba(0,0,0,0.02);
+    --mp-th-color:     #94A3B8;
+    --mp-th-border:    rgba(0,0,0,0.06);
+    --mp-tr-border:    rgba(0,0,0,0.04);
+    --mp-tr-hover:     rgba(0,0,0,0.025);
+    --mp-td-color:     #64748B;
+    --mp-empty-color:  #CBD5E1;
+    --map-tile: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  }
+
+  .map-page {
+    padding: 32px 24px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .page-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3B82F6;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--mp-title);
+    letter-spacing: -0.02em;
+    margin: 0;
+    transition: color 0.3s;
+  }
+
+  .page-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--mp-count);
+    transition: color 0.3s;
+  }
+  .page-count span { color: #10B981; font-weight: 600; }
+
+  .map-container {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--mp-container-border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    margin-bottom: 28px;
+    transition: border-color 0.3s;
+  }
+
+  .map-topbar {
+    background: var(--mp-topbar-bg);
+    border-bottom: 1px solid var(--mp-topbar-border);
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .m-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .map-topbar-title {
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--mp-topbar-text);
+    transition: color 0.3s;
+  }
+
+  .live-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #10B981;
+    letter-spacing: 0.08em;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 6px #10B981;
+    animation: pulse-live 1.5s infinite;
+  }
+
+  #map { height: 480px; width: 100%; }
+
+  .table-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #3B82F6;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .cs-table-wrap {
+    background: var(--mp-table-bg);
+    border: 1px solid var(--mp-table-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .cs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .cs-table thead th {
+    background: var(--mp-th-bg);
+    color: var(--mp-th-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--mp-th-border);
+    font-weight: 600;
+    text-align: left;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .cs-table tbody tr {
+    border-bottom: 1px solid var(--mp-tr-border);
+    transition: background 0.2s, border-color 0.3s;
+  }
+  .cs-table tbody tr:hover { background: var(--mp-tr-hover); }
+  .cs-table tbody tr:last-child { border-bottom: none; }
+
+  .cs-table tbody td {
+    padding: 12px 18px;
+    color: var(--mp-td-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    vertical-align: middle;
+    transition: color 0.3s;
+  }
+
+  .td-email { color: #EF4444 !important; }
+  .td-ip    { color: #3B82F6 !important; }
+  .td-city  { color: #10B981 !important; }
+  .td-num   { color: var(--mp-th-color) !important; }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--mp-empty-color);
+    padding: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  @keyframes pulse-live {
+    0%,100% { box-shadow: 0 0 6px #10B981; }
+    50%      { box-shadow: 0 0 12px #10B981; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<div class="map-page">
+  <div class="page-header">
+    <div>
+      <div class="page-label">// attack_map --live</div>
+      <h1 class="page-title">🗺️ Phishing Hujumlar Xaritasi</h1>
+    </div>
+    <div class="page-count">
+      Jami: <span>{{ urinishlar|length }}</span> ta urinish aniqlandi
+    </div>
+  </div>
+
+  <div class="map-container">
+    <div class="map-topbar">
+      <div class="m-dot" style="background:#FF5F57;"></div>
+      <div class="m-dot" style="background:#FFBD2E;"></div>
+      <div class="m-dot" style="background:#28CA41;"></div>
+      <span class="map-topbar-title">leaflet.js · CARTO Tiles · Real-time</span>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <div class="table-section-title">// log_data.txt</div>
+  <div class="cs-table-wrap">
+    <table class="cs-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Email</th>
+          <th>IP Manzil</th>
+          <th>Mamlakat</th>
+          <th>Shahar</th>
+          <th>Browser</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in urinishlar %}
+        <tr>
+          <td class="td-num">{{ forloop.counter }}</td>
+          <td class="td-email">{{ u.email }}</td>
+          <td class="td-ip">{{ u.ip_address }}</td>
+          <td>{{ u.country|default:"—" }}</td>
+          <td class="td-city">{{ u.city|default:"—" }}</td>
+          <td>{{ u.user_agent|truncatechars:55 }}</td>
+        </tr>
+        {% empty %}
+        <tr class="empty-row">
+          <td colspan="6">// hozircha urinish yo'q — [ waiting for connections... ]</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const theme = document.documentElement.getAttribute('data-theme');
+  const tileUrl = theme === 'dark'
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+  const map = L.map('map').setView([30, 20], 2);
+  let tileLayer = L.tileLayer(tileUrl, {
+    attribution: '© OpenStreetMap © CARTO'
+  }).addTo(map);
+
+  // Tema o'zgarganda xarita tiles ham o'zgarsin
+  const observer = new MutationObserver(function() {
+    const newTheme = document.documentElement.getAttribute('data-theme');
+    const newUrl = newTheme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    map.removeLayer(tileLayer);
+    tileLayer = L.tileLayer(newUrl, {
+      attribution: '© OpenStreetMap © CARTO'
+    }).addTo(map);
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  const xarita = {{ xarita|safe }};
+  xarita.forEach(function(u) {
+    if (u.latitude && u.longitude) {
+      const marker = L.circleMarker([u.latitude, u.longitude], {
+        radius: 10,
+        fillColor: '#EF4444',
+        color: '#FCA5A5',
+        weight: 2,
+        fillOpacity: 0.85
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px;min-width:200px;border-radius:6px;">
+          <div style="color:#EF4444;margin-bottom:4px;">📧 ${u.email}</div>
+          <div style="color:#3B82F6;">🌐 ${u.ip_address}</div>
+          <div style="color:#10B981;">📍 ${u.city || '—'}, ${u.country || '—'}</div>
+          <div style="color:#94A3B8;margin-top:4px;font-size:11px;">${(u.user_agent || '').substring(0,60)}</div>
+        </div>
+      `);
+
+      L.circleMarker([u.latitude, u.longitude], {
+        radius: 18,
+        fillColor: 'transparent',
+        color: '#EF4444',
+        weight: 1,
+        opacity: 0.3,
+        fillOpacity: 0
+      }).addTo(map);
+    }
+  });
+</script>
+{% endblock %}
